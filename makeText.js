@@ -1,7 +1,7 @@
 const markov = require("./markov");
-const fs = require(fs);
-const axios = require(axios);
-const process = require(process);
+const fs = require("fs");
+const axios = require("axios");
+const process = require("process");
 
 
 // generates the Markov Text from file or url text and displays it on console
@@ -11,7 +11,7 @@ function markovText(text) {
 }
 
 
-// make text from file
+// get text from file to be converted to markovText
 
 function makeText(path) {
     fs.readFile(path, "utf8", function cb(err, data) {
@@ -19,16 +19,22 @@ function makeText(path) {
         console.error(`Cannot read file: ${path}: ${err}`);
         process.exit(1);
       } else {
-        generateText(data);
+        markovText(data);
       }
     });
   
   }
 
-// make text from url
+// get text from url to be converted to markovText
 
 async function makeURLText(url) {
-    resp = await axios.get(url)
+    let resp
+    try {
+        resp = await axios.get(url)
+    } catch(err) {
+        console.log(`Cannot read URL ${url}: ${err}`);
+        process.exit(1)
+    }
     markovText(resp.data)
 }
 
@@ -36,13 +42,14 @@ async function makeURLText(url) {
 // determine if cmd line calls for url or text file
 
 inputMethod = process.argv[2]
-inputMethod = process.argv[2]
+inputPath = process.argv[3]
+
 
 if (inputMethod === "file") {
-    makeText(path);
+    makeText(inputPath);
 }
 else if (inputMethod === "url") {
-    makeURLText(path)
+    makeURLText(inputPath)
 }
 else {
     console.log("Unknown Method. Try 'file' or 'url" )
